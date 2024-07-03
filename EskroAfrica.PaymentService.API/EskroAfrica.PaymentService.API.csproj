@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EskroAfrica.PaymentService.Application\EskroAfrica.PaymentService.Application.csproj" />
+    <ProjectReference Include="..\EskroAfrica.PaymentService.Common\EskroAfrica.PaymentService.Common.csproj" />
+    <ProjectReference Include="..\EskroAfrica.PaymentService.Domain\EskroAfrica.PaymentService.Domain.csproj" />
+    <ProjectReference Include="..\EskroAfrica.PaymentService.Infrastructure\EskroAfrica.PaymentService.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>
