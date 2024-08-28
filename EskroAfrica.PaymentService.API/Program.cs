@@ -1,14 +1,32 @@
+using Confluent.Kafka;
 using EskroAfrica.PaymentService.API;
+using EskroAfrica.PaymentService.Infrastructure.Data;
 using Hangfire;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 IConfiguration config = builder.Configuration;
 
-Log.Logger = new LoggerConfiguration()
-    .WriteTo.Console()
-    .WriteTo.Seq(builder.Configuration.GetValue<string>("AppSettings:LogSettings:LogUrl"))
-    .CreateLogger();
+bool writeToSeq = builder.Configuration.GetValue<bool>("AppSettings:LogSettings:WriteToSeq");
+bool writeToFile = builder.Configuration.GetValue<bool>("AppSettings:LogSettings:WriteToFile");
+
+if (writeToSeq)
+{
+    Log.Logger = new LoggerConfiguration()
+        .WriteTo.Console()
+        .WriteTo.Seq(builder.Configuration.GetValue<string>("AppSettings:LogSettings:LogUrl"))
+        .CreateLogger();
+}
+else if (writeToFile)
+{
+    Log.Logger = new LoggerConfiguration()
+        .WriteTo.Console()
+        .WriteTo.File("logs/log.txt",
+            rollingInterval: RollingInterval.Day,
+            rollOnFileSizeLimit: true)
+        .CreateLogger();
+}
 
 Log.Information("Starting up PaymentService");
 
@@ -30,6 +48,15 @@ try
     // Configure the HTTP request pipeline.
     app.UseSwagger();
     app.UseSwaggerUI();
+
+    if (builder.Configuration.GetValue<bool>("AppSettings:EnableMigration"))
+    {
+        using (var scope = app.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<PaymentServiceDbContext>();
+            dbContext.Database.Migrate();
+        }
+    }
 
     app.UseCors(options =>
     {
